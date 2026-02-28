@@ -1,0 +1,12 @@
+# Law Parser 迁移所需依赖
+python-docx>=0.8.11
+tiktoken>=0.5.0
+datrie>=0.8.3,<0.9.0
+hanziconv>=0.3.2
+nltk>=3.8
+roman-numbers>=1.0.2
+word2number>=1.1
+cn2an>=0.5.22
+#Pillow>=10.0.0  #图片处理
+chardet>=5.2.0
+pandas>=2.0.0

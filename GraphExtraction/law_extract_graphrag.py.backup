@@ -1,0 +1,272 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+使用 GraphRAG 方法从法律分块文件中提取实体和关系
+基于 LeanRAG 项目的 Method 2: GraphRAG
+使用deepseekapiKey，处理单个文件
+"""
+
+import os
+import sys
+import json
+import asyncio
+from pathlib import Path
+
+# 添加项目路径
+# 自动检测脚本位置并调整导入
+current_file = Path(__file__).resolve()
+current_dir = current_file.parent
+
+# 如果在 GraphExtraction 目录内，项目根目录是上级目录
+if current_dir.name == "GraphExtraction":
+    project_root = current_dir.parent
+    sys.path.insert(0, str(project_root))
+    from chunk import get_chunk, triple_extraction
+else:
+    # 在项目根目录
+    project_root = current_dir
+    sys.path.insert(0, str(project_root))
+    from GraphExtraction.chunk import get_chunk, triple_extraction
+
+from tools.utils import InstanceManager
+
+
+def setup_llm_instance(config):
+    """
+    配置 LLM 实例管理器
+    
+    参数:
+        config: LLM配置字典
+            - url: LLM服务URL
+            - ports: 端口列表
+            - gpus: GPU列表
+            - model: 模型名称
+            - num_instances: 实例数量
+    """
+    print(f"\n{'='*60}")
+    print("配置 LLM 实例")
+    print(f"{'='*60}")
+    print(f"URL: {config['url']}")
+    print(f"模型: {config['model']}")
+    print(f"GPU数量: {config['num_instances']}")
+    print(f"端口: {config['ports']}")
+    
+    instanceManager = InstanceManager(
+        url=config['url'],
+        ports=config['ports'],
+        gpus=config['gpus'],
+        generate_model=config['model'],
+        startup_delay=config.get('startup_delay', 30),
+        api_key=config.get('api_key')
+    )
+    
+    return instanceManager.generate_text_asy
+
+
+def main():
+    """主函数 - 使用 GraphRAG 方法提取实体和关系"""
+    
+    print("="*70)
+    print(" 法律知识图谱实体提取 - GraphRAG 方法")
+    print("="*70)
+    
+    # ============================================
+    # 配置参数 - 根据你的环境修改这里
+    # ============================================
+    
+    # 输入文件配置 - 使用相对于项目根目录的路径
+    if current_dir.name == "GraphExtraction":
+        # 在 GraphExtraction 目录内，路径需要回到上级
+        chunk_file = "../datasets/law_test_chunk.json"
+        output_dir = "../law_kg_output"
+    else:
+        # 在项目根目录
+        chunk_file = "datasets/law_test_chunk.json"
+        output_dir = "law_kg_output"
+    
+    # LLM 配置
+    # 如需调用 DeepSeek 在线服务，推荐如下配置：
+    # - url: 使用 https://api.deepseek.com
+    # - model: deepseek-reasoner (R1) 或 deepseek-chat
+    # - api_key: 从环境变量 DEEPSEEK_API_KEY 读取
+    # - ports: 使用 [443] * num_instances 即可
+    # - gpus: 在线服务无需GPU，占位 [0] * num_instances 即可
+    llm_config = {
+        'url': os.environ.get('DEEPSEEK_BASE_URL', 'https://api.deepseek.com'),
+        'model': os.environ.get('DEEPSEEK_MODEL', 'deepseek-chat'),
+        'num_instances': int(os.environ.get('DEEPSEEK_NUM_INSTANCES', '3')),
+        'ports': [int(os.environ.get('DEEPSEEK_PORT', '443'))] * int(os.environ.get('DEEPSEEK_NUM_INSTANCES', '3')),
+        'gpus': [0] * int(os.environ.get('DEEPSEEK_NUM_INSTANCES', '3')),
+        'startup_delay': 0,
+        'api_key': os.environ.get('DEEPSEEK_API_KEY', 'sk-6ba1dbd9a186476ca86e3400c0dc0427')
+    }
+    
+    # ============================================
+    # 步骤1: 检查输入文件
+    # ============================================
+    print(f"\n{'='*60}")
+    print("步骤1: 检查输入文件")
+    print(f"{'='*60}")
+    
+    if not os.path.exists(chunk_file):
+        print(f"❌ 错误: 分块文件不存在: {chunk_file}")
+        print(f"当前工作目录: {os.getcwd()}")
+        print("\n请先运行以下命令生成分块文件:")
+        print(f"  python law_data_process.py")
+        return
+    
+    print(f"✅ 找到分块文件: {chunk_file}")
+    file_size = os.path.getsize(chunk_file) / 1024  # KB
+    print(f"   文件大小: {file_size:.2f} KB")
+    
+    # ============================================
+    # 步骤2: 加载分块数据
+    # ============================================
+    print(f"\n{'='*60}")
+    print("步骤2: 加载分块数据")
+    print(f"{'='*60}")
+    
+    try:
+        chunks = get_chunk(chunk_file)
+        print(f"✅ 成功加载 {len(chunks)} 个文本块")
+        
+        # 显示第一个块的信息
+        first_key = list(chunks.keys())[0]
+        first_text = chunks[first_key]
+        print(f"\n第一个块信息:")
+        print(f"  Hash ID: {first_key[:32]}...")
+        print(f"  文本长度: {len(first_text)} 字符")
+        print(f"  文本预览: {first_text[:100]}...")
+        
+    except Exception as e:
+        print(f"❌ 加载分块文件失败: {e}")
+        return
+    
+    # ============================================
+    # 步骤3: 配置 LLM
+    # ============================================
+    print(f"\n{'='*60}")
+    print("步骤3: 配置 LLM")
+    print(f"{'='*60}")
+    
+    try:
+        use_llm_func = setup_llm_instance(llm_config)
+        print("✅ LLM 实例配置完成")
+    except Exception as e:
+        print(f"❌ LLM 配置失败: {e}")
+        return
+    
+    # ============================================
+    # 步骤4: 提取实体和关系
+    # ============================================
+    print(f"\n{'='*60}")
+    print("步骤4: 提取实体和关系 (使用 GraphRAG)")
+    print(f"{'='*60}")
+    print(f"输出目录: {output_dir}")
+    print("\n开始提取... (这可能需要一些时间)")
+    print("-" * 60)
+    
+    try:
+        # 创建输出目录
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # 运行异步提取
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(
+            triple_extraction(chunks, use_llm_func, output_dir)
+        )
+        
+        print("-" * 60)
+        print("✅ 实体和关系提取完成!")
+        
+    except Exception as e:
+        print(f"\n❌ 提取过程出错: {e}")
+        import traceback
+        traceback.print_exc()
+        return
+    
+    # ============================================
+    # 步骤5: 检查输出结果
+    # ============================================
+    print(f"\n{'='*60}")
+    print("步骤5: 输出结果统计")
+    print(f"{'='*60}")
+    
+    entity_file = f"{output_dir}/entity.jsonl"
+    relation_file = f"{output_dir}/relation.jsonl"
+    
+    # 统计实体
+    if os.path.exists(entity_file):
+        with open(entity_file, 'r', encoding='utf-8') as f:
+            entities = [json.loads(line) for line in f if line.strip()]
+        print(f"✅ 实体文件: {entity_file}")
+        print(f"   实体数量: {len(entities)}")
+        
+        if entities:
+            print(f"\n   实体示例:")
+            for i, entity in enumerate(entities[:3], 1):
+                print(f"     [{i}] {entity.get('entity_name', 'N/A')}")
+                print(f"         类型: {entity.get('entity_type', 'N/A')}")
+                print(f"         描述: {entity.get('description', 'N/A')[:60]}...")
+    else:
+        print(f"⚠️  实体文件不存在: {entity_file}")
+    
+    # 统计关系
+    if os.path.exists(relation_file):
+        with open(relation_file, 'r', encoding='utf-8') as f:
+            raw_relations = [json.loads(line) for line in f if line.strip()]
+        # 处理可能存在的列表格式（向后兼容）
+        relations = []
+        for rel in raw_relations:
+            if isinstance(rel, list):
+                # 如果是列表，展平它
+                relations.extend(rel)
+            else:
+                # 如果是字典，直接添加
+                relations.append(rel)
+        print(f"\n✅ 关系文件: {relation_file}")
+        print(f"   关系数量: {len(relations)}")
+        
+        if relations:
+            print(f"\n   关系示例:")
+            for i, rel in enumerate(relations[:3], 1):
+                src = rel.get('src_id', 'N/A')
+                tgt = rel.get('tgt_id', 'N/A')
+                desc = rel.get('description', 'N/A')
+                print(f"     [{i}] {src} -> {tgt}")
+                print(f"         描述: {desc[:60]}...")
+    else:
+        print(f"⚠️  关系文件不存在: {relation_file}")
+    
+    # ============================================
+    # 步骤6: 去重处理
+    # ============================================
+    print(f"\n{'='*60}")
+    print("步骤6: 去重和后处理")
+    print(f"{'='*60}")
+    print("接下来需要运行去重脚本:")
+    print(f"  python GraphExtraction/deal_triple.py")
+    print("\n或者修改 deal_triple.py 中的路径后运行:")
+    print(f"  working_dir='{output_dir}'")
+    print(f"  output_path='{output_dir}_processed'")
+    
+    # ============================================
+    # 完成
+    # ============================================
+    print(f"\n{'='*70}")
+    print(" 实体提取完成!")
+    print(f"{'='*70}")
+    print(f"\n输出文件位置:")
+    print(f"  - 实体: {entity_file}")
+    print(f"  - 关系: {relation_file}")
+    print(f"\n后续步骤:")
+    print(f"  1. 运行去重脚本: python law_deal_triple.py")
+    print(f"  2. 构建知识图谱: python build_graph.py")
+    print(f"  3. 查询测试: python query_graph.py")
+
+
+if __name__ == "__main__":
+    main()
+
+
+

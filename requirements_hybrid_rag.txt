@@ -1,0 +1,26 @@
+# 混合RAG检索系统额外依赖包
+# 注意：大部分依赖已在 requirements.txt 中，这里只列出额外需要的包
+
+# 新增依赖（requirements.txt中没有的）
+sentence-transformers>=2.2.0  # Embedding模型（必需）
+rank-bm25>=0.2.2             # BM25文本匹配（必需）
+
+# 以下包已在 requirements.txt 中，无需重复安装：
+# - pymilvus==2.5.6 (>= 2.3.0) ✓
+# - scipy==1.14.1 (>= 1.10.0) ✓
+# - jieba==0.42.1 (>= 0.42.1) ✓
+# - torch==2.6.0 (>= 2.0.0) ✓
+# - vllm==0.8.5 (>= 0.2.0) ✓
+# - numpy==1.26.4 (>= 1.24.0) ✓
+# - matplotlib==3.10.0 (>= 3.7.0) ✓
+# - pandas==2.2.3 (>= 2.0.0) ✓
+# - tqdm==4.66.5 (>= 4.65.0) ✓
+# - pyyaml==6.0.2 (>= 6.0) ✓
+
+# 安装说明：
+# 1. 如果已安装 requirements.txt，只需安装：
+#    pip install sentence-transformers rank-bm25
+#
+# 2. 如果是全新环境，先安装：
+#    pip install -r requirements.txt
+#    pip install -r requirements_hybrid_rag.txt

@@ -1,0 +1,84 @@
+# 统一配置文件 - 用于所有脚本
+
+# ==================== 旧版配置（build_graph.py 使用） ====================
+glm:
+  model: "BAAI/bge-m3"
+  base_url: "http://xxx:8000/v1"
+  embedding_model: "bge-m3"
+
+deepseek:
+  model: "deepseek-r1-32b:latest"
+  api_key: "ollama"
+  base_url: "http://10.61.2.49:11434/v1"
+
+# Model Parameters
+model_params:
+  openai_embedding_dim: 1536
+  glm_embedding_dim: 1024
+  max_token_size: 8192
+
+# ==================== 新版配置（混合RAG系统使用） ====================
+
+# 数据路径配置
+data:
+  input: "E:/MyPrograms/LeanRAG/datasets/query_social.json"
+  output: "E:/MyPrograms/LeanRAG/datasets/query_social_hybrid_pred.json"
+
+# 向量数据库配置
+vector_db:
+  path: "/newdataf/SJ/LeanRAG/vectorDB/social_law_milvus.db"
+  collection: "social_law_chunks"
+
+# 知识图谱配置
+knowledge_graph:
+  working_dir: "/newdataf/SJ/LeanRAG/output/social_law_7B_processed/"
+
+# 模型配置
+models:
+  # Embedding模型（与上面 glm.model 保持一致）
+  embedding:
+    name: "BAAI/bge-m3"  # 与 glm.model 一致
+    device: "cpu"  # cpu 或 cuda
+    max_seq_length: 4096
+  
+  # LLM模型
+  llm:
+    path: "/newdatad/WHH/MyEmoHH/models/Qwen2-7B-Instruct"
+    tensor_parallel_size: 1
+    gpu_memory_utilization: 0.75
+    max_model_len: 8192
+    dtype: "auto"
+
+# 检索参数
+retrieval:
+  top_k: 10
+  correlation_threshold: 0.7
+
+# LLM生成参数
+generation:
+  temperature: 0.3
+  top_p: 0.9
+  max_new_tokens: 1024
+  repetition_penalty: 1.1
+
+# 日志配置
+logging:
+  dir: "logs"
+  level: "INFO"
+
+# 不同场景的推荐配置
+scenarios:
+  simple_query:
+    top_k: 5
+    correlation_threshold: 0.8
+    temperature: 0.1
+  
+  complex_reasoning:
+    top_k: 15
+    correlation_threshold: 0.6
+    temperature: 0.5
+  
+  balanced:
+    top_k: 10
+    correlation_threshold: 0.7
+    temperature: 0.3

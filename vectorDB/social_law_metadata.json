@@ -1,0 +1,9 @@
+{
+  "collection_name": "social_law_chunks",
+  "chunks_count": 1553,
+  "embedding_model": "BAAI/bge-m3",
+  "embedding_dim": 1024,
+  "vector_store_type": "Milvus Lite",
+  "db_path": "/newdataf/SJ/LeanRAG/vectorDB/social_law_milvus.db",
+  "source_file": "/newdataf/SJ/LeanRAG/datasets/chunks/basic_laws_social_only_chunk.json"
+}

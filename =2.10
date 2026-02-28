@@ -1,0 +1,3 @@
+Looking in indexes: https://pypi.tuna.tsinghua.edu.cn/simple
+Requirement already satisfied: pybind11 in /home/conda_envs/leanrag/lib/python3.11/site-packages (3.0.1)
+Requirement already satisfied: ninja in /home/conda_envs/leanrag/lib/python3.11/site-packages (1.13.0)

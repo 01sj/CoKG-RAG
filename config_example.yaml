@@ -1,0 +1,89 @@
+# 混合RAG检索系统配置示例
+
+# 数据路径配置
+data:
+  input: "E:/MyPrograms/LeanRAG/datasets/query_social.json"
+  output: "E:/MyPrograms/LeanRAG/datasets/query_social_hybrid_pred.json"
+
+# 向量数据库配置
+vector_db:
+  path: "/newdataf/SJ/LeanRAG/vectorDB/social_law_milvus.db"
+  collection: "social_law_chunks"
+
+# 知识图谱配置
+knowledge_graph:
+  working_dir: "/newdataf/SJ/LeanRAG/output/social_law_7B_processed/"
+
+# 模型配置
+models:
+  # Embedding模型
+  embedding:
+    name: "BAAI/bge-large-zh-v1.5"
+    device: "cuda"  # cpu 或 cuda
+    max_seq_length: 4096
+  
+  # LLM模型
+  llm:
+    path: "/newdatad/WHH/MyEmoHH/models/Qwen2-7B-Instruct"
+    tensor_parallel_size: 1
+    gpu_memory_utilization: 0.75
+    max_model_len: 8192
+    dtype: "auto"
+
+# 检索参数
+retrieval:
+  top_k: 10  # 检索Top-K文档
+  correlation_threshold: 0.7  # Spearman相关系数阈值
+  # 阈值说明：
+  # - >= 0.7: 语义和文本匹配一致，使用向量检索
+  # - < 0.7: 语义和文本匹配不一致，启用知识图谱
+
+# LLM生成参数
+generation:
+  temperature: 0.3  # 采样温度（0.0-1.0，越低越确定）
+  top_p: 0.9  # top_p采样
+  max_new_tokens: 1024  # 最大生成token数
+  repetition_penalty: 1.1  # 重复惩罚
+
+# 日志配置
+logging:
+  dir: "logs"
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+
+# 性能优化建议
+performance_tips:
+  # 1. 调整相关系数阈值
+  #    - 提高阈值（如0.8）：更少使用知识图谱，速度更快
+  #    - 降低阈值（如0.6）：更多使用知识图谱，推理能力更强
+  
+  # 2. 调整Top-K
+  #    - 增加Top-K（如15-20）：提高召回率，但可能引入噪声
+  #    - 减少Top-K（如5-8）：提高精确度，但可能遗漏信息
+  
+  # 3. GPU配置
+  #    - 单GPU：tensor_parallel_size=1
+  #    - 多GPU：tensor_parallel_size=2或更多
+  
+  # 4. 显存优化
+  #    - 降低gpu_memory_utilization（如0.6）
+  #    - 降低max_model_len（如4096）
+
+# 不同场景的推荐配置
+scenarios:
+  # 场景1：简单法条查询（速度优先）
+  simple_query:
+    top_k: 5
+    correlation_threshold: 0.8
+    temperature: 0.1
+  
+  # 场景2：复杂法律推理（质量优先）
+  complex_reasoning:
+    top_k: 15
+    correlation_threshold: 0.6
+    temperature: 0.5
+  
+  # 场景3：平衡模式（默认）
+  balanced:
+    top_k: 10
+    correlation_threshold: 0.7
+    temperature: 0.3

@@ -1,0 +1,50 @@
+{
+  "timestamp": "2026-01-14T18:13:25.398808",
+  "total_experiments": 5,
+  "successful": 5,
+  "failed": 0,
+  "skipped": 0,
+  "total_time": 4877.226985454559,
+  "experiments": [
+    {
+      "name": "CoKG-RAG-Full",
+      "description": "完整系统（基线）",
+      "status": "success",
+      "elapsed_time": 1049.8741252422333,
+      "output_file": "/newdataf/SJ/LeanRAG/datasets/ablation_4/cokg-rag-full.json",
+      "command": "python hybrid_rag_query.py --input datasets/query_social.json --output /newdataf/SJ/LeanRAG/datasets/ablation_4/cokg-rag-full.json --llm-model /newdatad/WHH/MyEmoHH/models/Qwen2-7B-Instruct"
+    },
+    {
+      "name": "Ablation-Retrieval-Only",
+      "description": "消融1：只用检索一致性评估",
+      "status": "success",
+      "elapsed_time": 766.2109882831573,
+      "output_file": "/newdataf/SJ/LeanRAG/datasets/ablation_4/ablation-retrieval-only.json",
+      "command": "python hybrid_rag_query.py --input datasets/query_social.json --output /newdataf/SJ/LeanRAG/datasets/ablation_4/ablation-retrieval-only.json --llm-model /newdatad/WHH/MyEmoHH/models/Qwen2-7B-Instruct --use-retrieval-only"
+    },
+    {
+      "name": "Ablation-Intrinsic-Only",
+      "description": "消融2：只用问题本质评估",
+      "status": "success",
+      "elapsed_time": 1029.671549320221,
+      "output_file": "/newdataf/SJ/LeanRAG/datasets/ablation_4/ablation-intrinsic-only.json",
+      "command": "python hybrid_rag_query.py --input datasets/query_social.json --output /newdataf/SJ/LeanRAG/datasets/ablation_4/ablation-intrinsic-only.json --llm-model /newdatad/WHH/MyEmoHH/models/Qwen2-7B-Instruct --use-intrinsic-only"
+    },
+    {
+      "name": "Ablation-Fixed-TopK",
+      "description": "消融3：固定Top-K文档数量",
+      "status": "success",
+      "elapsed_time": 1041.7307286262512,
+      "output_file": "/newdataf/SJ/LeanRAG/datasets/ablation_4/ablation-fixed-topk.json",
+      "command": "python hybrid_rag_query.py --input datasets/query_social.json --output /newdataf/SJ/LeanRAG/datasets/ablation_4/ablation-fixed-topk.json --llm-model /newdatad/WHH/MyEmoHH/models/Qwen2-7B-Instruct --fixed-topk"
+    },
+    {
+      "name": "Ablation-Flat-KG",
+      "description": "消融4：扁平KG结构（无层次）",
+      "status": "success",
+      "elapsed_time": 989.7395939826965,
+      "output_file": "/newdataf/SJ/LeanRAG/datasets/ablation_4/ablation-flat-kg.json",
+      "command": "python hybrid_rag_query.py --input datasets/query_social.json --output /newdataf/SJ/LeanRAG/datasets/ablation_4/ablation-flat-kg.json --llm-model /newdatad/WHH/MyEmoHH/models/Qwen2-7B-Instruct --flat-kg"
+    }
+  ]
+}

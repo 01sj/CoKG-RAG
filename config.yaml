@@ -1,0 +1,21 @@
+
+glm:
+  model: "BAAI/bge-m3"
+  base_url: "http://xxx:8000/v1"
+  embedding_model: "bge-m3"
+
+deepseek:
+
+  # model: "Qwen3-14b"
+  model: "deepseek-r1-32b:latest"
+  # model: "Qwen3-32b"
+
+  api_key: "ollama"
+  base_url: "http://10.61.2.49:11434/v1"
+
+# Model Parameters
+model_params:
+  openai_embedding_dim: 1536
+  glm_embedding_dim: 1024
+  max_token_size: 8192
+

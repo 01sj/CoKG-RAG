@@ -1,0 +1,30 @@
+{
+  "comparison_date": "2026-01-06",
+  "methods": [
+    {
+      "method_name": "KG",
+      "total_samples": 600,
+      "comprehensive_score": 0.3394022909570045,
+      "article_accuracy": 0.07166666666666667,
+      "article_precision": 0.05380555555555555,
+      "article_recall": 0.055,
+      "concept_precision": 0.49527314352314344,
+      "concept_recall": 0.7107566137566137,
+      "concept_f1": 0.5482139495227057,
+      "length_ratio": 6.052460851966222,
+      "length_score": 0.6716666666666666,
+      "structure_rate": 0.95,
+      "rouge1_f1": 0.2316943231365994,
+      "rouge2_f1": 0.06368408071651252,
+      "rougel_f1": 0.11938106100192812,
+      "bleu": 0.022075354973400355,
+      "bertscore_f1": 0.6581802368164062
+    }
+  ],
+  "best_methods": {
+    "comprehensive": "KG",
+    "article_accuracy": "KG",
+    "concept_f1": "KG",
+    "rougel_f1": "KG"
+  }
+}

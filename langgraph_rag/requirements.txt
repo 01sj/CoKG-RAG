@@ -1,0 +1,12 @@
+# LangGraph RAG 依赖
+
+# 核心依赖（继承自原项目）
+# 这些依赖应该已经在原项目的 requirements.txt 中
+
+# LangGraph 相关
+langgraph>=0.0.20
+langchain>=0.1.0
+langchain-core>=0.1.0
+
+# 可视化（可选）
+# pygraphviz  # 需要系统安装 graphviz
