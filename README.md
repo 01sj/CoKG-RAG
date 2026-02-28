@@ -1,5 +1,6 @@
 1、目录介绍：
 langgraph_rag 是用langgraph重新包装的代码
+
          执行入口 main.py
          
          python main.py --input datasets/query_social.json --output datasets/query_social_langgraph_pred.json  这是实验的整个流程
