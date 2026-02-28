@@ -4,8 +4,8 @@ langgraph_rag 是用langgraph重新包装的代码
          执行入口 main.py
          
          python main.py --input datasets/query_social.json --output datasets/query_social_langgraph_pred.json  这是实验的整个流程
-         main.py本质调用的是hybrid_rag_query.py，要提前建好向量库和知识库
-         使用的是本地模型/newdatad/WHH/MyEmoHH/models/Qwen2-7B-Instruct
+main.py本质调用的是hybrid_rag_query.py，要提前建好向量库和知识库
+使用的是本地模型/newdatad/WHH/MyEmoHH/models/Qwen2-7B-Instruct
         
 
 datasets 数据集目录
