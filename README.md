@@ -11,6 +11,7 @@ main.py本质调用的是hybrid_rag_query.py，要提前建好向量库和知识
 
 datasets 数据集目录
          两个数据集分别是datasets\query_social.json  #这个是lawbench数据集
+         
                        datasets\训练数据_基础社会法_600条.json #这个是SocialLawQA数据集
 
          实验结果以及对比实验结果分别保存在datasets的lawBench和ocialLawQA目录下
